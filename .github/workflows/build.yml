@@ -27,6 +27,12 @@ jobs:
           touch .env
           echo VITE_API_URL=${VITE_API_URL} >> .env
           echo VITE_API_PASSWORD=${VITE_API_PASSWORD} >> .env
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: dist
       
       - name: Build
         env:
