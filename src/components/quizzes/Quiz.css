@@ -1,0 +1,124 @@
+/* Quiz.css */
+
+h1 {
+    color: #333;
+}
+
+h2 {
+    color: #555;
+}
+
+#quizContent {
+    margin: 20px 0;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin: 10px 0;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#feedback {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+:not(button).correct {
+    color: green;
+}
+
+:not(button).partial {
+    color: yellow;
+}
+
+:not(button).incorrect {
+    color: red;
+}
+
+.score {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+.question-button.correct {
+    background-color: green;
+}
+
+.question-button.partial {
+    background-color: yellow;
+}
+
+.question-button.incorrect {
+    background-color: red;
+}
+
+.question-button.current {
+    background-color: gray;
+}
+
+.question-nav {
+    position: fixed;
+    bottom: 15px;
+}
+
+.quiz-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    max-height: 99vh;
+    box-sizing: border-box;
+}
+
+#fileStatus, #errors {
+    color: red;
+    font-weight: bolder;
+}
+
+.drop-zone {
+    width: 300px;
+    height: 150px;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #404040;
+    cursor: pointer;
+    margin: 20px 0;
+    flex-direction: column;
+    position: relative; /* Ajouté pour positionner l'input */
+}
+
+#csvFile {
+    position: absolute; /* Positionne l'input par-dessus la zone de dépôt */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0; /* Rend l'input invisible */
+    cursor: pointer; /* Assure que le curseur change en pointeur */
+}

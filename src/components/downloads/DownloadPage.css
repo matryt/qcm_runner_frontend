@@ -1,0 +1,16 @@
+table {
+    border: 2px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.download {
+    text-align: center;
+}
+
+table {
+    margin: 20px auto 0px;
+}
