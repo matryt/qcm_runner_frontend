@@ -101,10 +101,11 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
         const isCorrect = selectedOptions.every(option => correctAnswers.includes(option)) && selectedOptions.length === correctAnswers.length;
         const isPartial = selectedOptions.some(option => correctAnswers.includes(option)) && !isCorrect;
 
-        setResults((prevResults: Result[]) => [
-            ...prevResults,
-            { question: currentQuestion.question, correct: isCorrect, partial: isPartial, selectedOptions, correctAnswers },
-        ]);
+        setResults((prevResults: Result[]) => {
+            const newResults = [...prevResults];
+            newResults[currentQuestionIndex] = { question: currentQuestion.question, correct: isCorrect, partial: isPartial, selectedOptions, correctAnswers };
+            return newResults;
+        });
 
         let questionScore = 0;
         if (isCorrect) {

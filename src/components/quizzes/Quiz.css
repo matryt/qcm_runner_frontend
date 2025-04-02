@@ -50,7 +50,7 @@ button:disabled {
 }
 
 :not(button).partial {
-    color: yellow;
+    color: #ffd900;
 }
 
 :not(button).incorrect {
@@ -67,7 +67,7 @@ button:disabled {
 }
 
 .question-button.partial {
-    background-color: yellow;
+    background-color: #ffd900;
 }
 
 .question-button.incorrect {
@@ -108,7 +108,7 @@ button:disabled {
     text-align: center;
     color: #404040;
     cursor: pointer;
-    margin: 20px 0;
+    margin: 20px auto;
     flex-direction: column;
     position: relative; /* Ajouté pour positionner l'input */
 }
@@ -121,4 +121,16 @@ button:disabled {
     height: 100%;
     opacity: 0; /* Rend l'input invisible */
     cursor: pointer; /* Assure que le curseur change en pointeur */
+}
+
+#imgQuestion {
+    max-height: 400px;
+}
+
+#imageAndAnswers {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
 }

@@ -18,9 +18,6 @@ export function validateCSVFormat(csvData: string): Question[] {
             errors.push(`Ligne ${index + 1}: Pas assez de colonnes (minimum: question, une option, réponses, url_image)`);
             return;
         }
-
-        console.log(parts);
-
         const question = parts[0];
         const correctAnswersStr = parts[parts.length - 2];
         let imageUrl = parts[parts.length - 1] || null;

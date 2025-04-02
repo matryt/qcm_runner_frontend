@@ -22,19 +22,23 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
         <div>
             <div id="quizContent">
                 <h3>{currentQuestion.question}</h3>
-                <ul>
-                    {currentQuestion.options.map((option: string, index: number) => (
-                        <li key={index}>
-                            <input type="checkbox" name="option" value={option} id={`option${index}`} disabled={isCurrentSubmitted} defaultChecked={currentSelectedOptions.includes(option)} />
-                            <label htmlFor={`option${index}`}>{option}</label>
-                        </li>
-                    ))}
-                </ul>
+                {currentQuestion.correctAnswers.length > 1 && <div>Il y a plusieurs réponses correctes.</div>}
+                <div id="imageAndAnswers">
+                    {currentQuestion.imageUrl && <img src={currentQuestion.imageUrl} alt="Question" id="imgQuestion"/>}
+                    <ul>
+                        {currentQuestion.options.map((option: string, index: number) => (
+                            <li key={index}>
+                                <input type="checkbox" name="option" value={option} id={`option${index}`} disabled={isCurrentSubmitted} defaultChecked={currentSelectedOptions.includes(option)} />
+                                <label htmlFor={`option${index}`}>{option}</label>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
-            <button onClick={showPreviousQuestion} disabled={isCurrentSubmitted}>Previous</button>
-            <button onClick={submitAnswer} disabled={isCurrentSubmitted}>Submit</button>
-            <button onClick={showNextQuestion} disabled={!isCurrentSubmitted}>Next</button>
-            <button onClick={finish}>Finish</button>
+            <button onClick={showPreviousQuestion} disabled={currentQuestionIndex == 0}>Précédent</button>
+            <button onClick={submitAnswer} disabled={isCurrentSubmitted}>Envoyer</button>
+            <button onClick={showNextQuestion} disabled={currentQuestionIndex == questions.length - 1}>Suivant</button>
+            <button onClick={finish}>Résultats</button>
             <div id="feedback" className={feedback === 'Correct!' ? 'correct' : feedback === 'Partially correct.' ? 'partial' : 'incorrect'}>{feedback || ''}</div>
         </div>
     );
