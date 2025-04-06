@@ -22,6 +22,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
     const [errors, setErrors] = useState<string>('');
     const [feedback, setFeedback] = useState<string>('');
     const [score, setScore] = useState<number>(0);
+    const [success, setSuccess] = useState<boolean>(false);
     const [submittedStates, setSubmittedStates] = useState<boolean[]>(Array(questions.length).fill(false));
     const [selectedOptions, setSelectedOptions] = useState<string[][]>(Array(questions.length).fill([]));
 
@@ -37,15 +38,15 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
         setSelectedOptions(Array(questions.length).fill([]));
     };
 
-    const handleFileImport = (file: File) => {
+    const handleFileImport = (file: File): boolean => {
         resetImportFeedback();
         if (!file) {
             alert('Veuillez sélectionner un fichier CSV');
-            return;
+            setSuccess(false);
         }
         if (!file.name.endsWith('.csv')) {
             setFileStatus('✗ Extension de fichier incorrecte');
-            return;
+            setSuccess(false);
         }
         const reader = new FileReader();
         reader.onload = function (event) {
@@ -53,16 +54,20 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
                 const csvData = event.target!.result as string;
                 const questions = validateCSVFormat(csvData);
                 setQuestions(questions);
+                setSuccess(true);
                 showStep(2);
             } catch (error) {
                 setErrors(`✗ ${(error as Error).message}`);
+                setSuccess(false);
             }
         };
         reader.onerror = function () {
             setErrors('✗ Erreur lors de la lecture du fichier');
+            setSuccess(false);
         };
         reader.readAsText(file);
         resetState();
+        return success;
     };
 
     const resetImportFeedback = () => {

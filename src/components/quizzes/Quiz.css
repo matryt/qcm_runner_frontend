@@ -124,7 +124,8 @@ button:disabled {
 }
 
 #imgQuestion {
-    max-height: 400px;
+    max-height: 480px;
+    max-width: 550px;
 }
 
 #imageAndAnswers {
@@ -133,4 +134,8 @@ button:disabled {
     gap: 15px;
     align-items: center;
     justify-content: center;
+}
+
+#imageAndAnswers ul {
+    text-align: left;
 }
