@@ -1,0 +1,11 @@
+.question-nav-toggle button {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    width: 205px;
+}
+
+.menuIcon {
+    display: inline-block;
+    margin-right: 10px;
+}

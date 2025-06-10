@@ -9,24 +9,38 @@ interface Step4Props {
 }
 
 const Step4: React.FC<Step4Props> = ({ showStep, results, nb, score }) => {
+    console.log(results);
     return (
         <div>
             <h2>Résultats</h2>
-            <p>Vous avez terminé le quiz (avec {results.length} questions terminées sur {nb}). Votre score est {score}/{nb}.
+            <p>Vous avez terminé le quiz (avec {results.length} questions terminées sur {nb}). Votre score
+                est {score}/{nb}.
             </p>
             <p>
                 Voici le détail de vos réponses :
             </p>
-            <ul>
+            <table>
+                <thead>
+                <tr>
+                    <th>Numéro</th>
+                    <th>Question</th>
+                    <th>Statut</th>
+                    <th>Options sélectionnées</th>
+                    <th>Réponses correctes</th>
+                </tr>
+                </thead>
+                <tbody>
                 {results.map((result, index) => (
-                    <li key={index}>
-                        <h3>Question {index+1} : {result.question}</h3>
-                        <p>{result.correct ? "Correct" : result.partial ? "Partiellement correct" : "Incorrect"}</p>
-                        {!result.correct && <p>Options sélectionnées : {result.selectedOptions.join(', ')}</p>}
-                        {!result.correct && <p>Réponses correctes : {result.correctAnswers.join(', ')}</p>}
-                    </li>
+                    <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{result.question}</td>
+                        <td>{result.correct ? "Correct" : result.partial ? "Partiellement correct" : "Incorrect"}</td>
+                        <td>{result.selectedOptions.join(', ')}</td>
+                        <td>{result.correctAnswers.join(', ')}</td>
+                    </tr>
                 ))}
-            </ul>
+                </tbody>
+            </table>
             <button onClick={() => showStep(1)}>Recommencer</button>
         </div>
     );

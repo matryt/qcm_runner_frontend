@@ -11,9 +11,11 @@ interface Step3Props {
     feedback: string;
     submittedStates: boolean[];
     selectedOptions: string[][];
+    correctResponsesText?: string;
 }
 
-const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, submitAnswer, finish, questions, currentQuestionIndex, feedback, submittedStates, selectedOptions }) => {
+const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, submitAnswer, finish, questions,
+                                         currentQuestionIndex, feedback, submittedStates, selectedOptions, correctResponsesText }) => {
     const currentQuestion = questions[currentQuestionIndex];
     const isCurrentSubmitted = submittedStates[currentQuestionIndex];
     const currentSelectedOptions = selectedOptions[currentQuestionIndex] || [];
@@ -40,6 +42,7 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
             <button onClick={showNextQuestion} disabled={currentQuestionIndex == questions.length - 1}>Suivant</button>
             <button onClick={finish}>Résultats</button>
             <div id="feedback" className={feedback === 'Correct!' ? 'correct' : feedback === 'Partially correct.' ? 'partial' : 'incorrect'}>{feedback || ''}</div>
+            {correctResponsesText && <div id="correctResponses">{correctResponsesText}</div>}
         </div>
     );
 }

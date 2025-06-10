@@ -6,8 +6,8 @@ import Step3 from "./quizSteps/Step3.tsx";
 import Step4 from "./quizSteps/Step4.tsx";
 import './Quiz.css';
 import { Question } from "../../types/Question.ts";
-import QuestionNav from "./QuestionNav.tsx";
 import { Result } from '../../types/Result.ts';
+import QuestionNavToggle from './QuestionNavToggle.tsx';
 
 interface QuizProps {
     step: number;
@@ -25,6 +25,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
     const [success, setSuccess] = useState<boolean>(false);
     const [submittedStates, setSubmittedStates] = useState<boolean[]>(Array(questions.length).fill(false));
     const [selectedOptions, setSelectedOptions] = useState<string[][]>(Array(questions.length).fill([]));
+    const [correctResponsesText, setCorrectResponsesText] = useState<string>("");
 
     const resetState = () => {
         setQuestions([]);
@@ -36,6 +37,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
         setScore(0);
         setSubmittedStates(Array(questions.length).fill(false));
         setSelectedOptions(Array(questions.length).fill([]));
+        setCorrectResponsesText("");
     };
 
     const handleFileImport = (file: File): boolean => {
@@ -85,6 +87,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
         setCurrentQuestionIndex((prevIndex) => Math.min(prevIndex + 1, questions.length - 1));
         setFeedback('');
         resetCheckboxes();
+        setCorrectResponsesText("");
     };
 
     const resetCheckboxes = () => {
@@ -118,12 +121,14 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
             setFeedback('Correct!');
         } else if (isPartial) {
             const correctCount = selectedOptions.filter(option => correctAnswers.includes(option)).length;
-            const incorrectCount = selectedOptions.length - correctCount;
-            questionScore = correctCount - (incorrectCount * 0.5);
-            setFeedback('Partially correct.');
+            const incorrectCount = selectedOptions.filter(option => !correctAnswers.includes(option)).length;
+            questionScore = (correctCount / correctAnswers.length) - (incorrectCount * 0.25);
+            setFeedback('Partiellement correct');
+            setCorrectResponsesText("Réponses correctes : " + correctAnswers.join(', '));
         } else {
             questionScore = -0.5 * selectedOptions.length;
-            setFeedback('Incorrect, please try again.');
+            setFeedback('Faux');
+            setCorrectResponsesText("Réponses correctes : " + correctAnswers.join(', '));
         }
 
         questionScore = Math.max(questionScore, 0);
@@ -155,10 +160,16 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
                     <Step3 showPreviousQuestion={showPreviousQuestion} showNextQuestion={showNextQuestion}
                            submitAnswer={submitAnswer} finish={finish} questions={questions}
                            currentQuestionIndex={currentQuestionIndex} feedback={feedback}
-                           submittedStates={submittedStates} selectedOptions={selectedOptions}/>
+                           submittedStates={submittedStates} selectedOptions={selectedOptions}
+                           correctResponsesText={correctResponsesText}
+                    />
                     <div className="score">Score: {score}/{questions.length}</div>
-                    <QuestionNav questions={questions} setCurrentQuestionIndex={setCurrentQuestionIndex}
-                                 results={results} currentQuestionIndex={currentQuestionIndex}/>
+                    <QuestionNavToggle
+                        questions={questions}
+                        setCurrentQuestionIndex={setCurrentQuestionIndex}
+                        results={results}
+                        currentQuestionIndex={currentQuestionIndex}
+                    />
                 </>
             )}
             {step === 4 && <Step4 showStep={showStep} results={results} nb={questions.length} score={score}/>}
