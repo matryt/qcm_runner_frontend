@@ -9,7 +9,7 @@ interface Step1Props {
 
 const Step1: React.FC<Step1Props> = ({ showStep, handleFileUpload, fileStatus, errors }) => {
     const [file, setFile] = useState<File | null>(null);
-    const [dropMessage, setDropMessage] = useState<string>('Déposez un fichier CSV ici ou cliquez pour sélectionner');
+    const [dropMessage, setDropMessage] = useState<string>('Déposez un fichier (CSV/JSON/YAML) ici ou cliquez pour sélectionner');
 
     const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length > 0) {
@@ -41,7 +41,7 @@ const Step1: React.FC<Step1Props> = ({ showStep, handleFileUpload, fileStatus, e
                 setDropMessage('Erreur lors de l\'importation du fichier. Veuillez vérifier le format.');
             }
         } else {
-            alert('Veuillez sélectionner un fichier CSV.');
+            alert('Veuillez sélectionner un fichier.');
         }
     };
 
@@ -58,13 +58,13 @@ const Step1: React.FC<Step1Props> = ({ showStep, handleFileUpload, fileStatus, e
 
     return (
         <div>
-            <h2>Étape 1: Chargez votre fichier CSV</h2>
-            <p>Format attendu: question,option1,option2,option3,option4,réponses_correctes</p>
-            <p>Note: Pour les réponses correctes multiples, séparez-les par des points-virgules</p>
+            <h2>Étape 1: Chargez votre fichier</h2> 
+            <p>Formats supportés: CSV, JSON, YAML</p>
+            <p>JSON/YAML: vous pouvez utiliser <code>{`responses: [{ text, isCorrect }]`}</code> ou <code>options</code>/<code>correctAnswers</code>.</p>
 
             <div className="drop-zone" onClick={() => document.getElementById('csvFile')?.click()}>
                 <div className="drop-message">{dropMessage}</div>
-                <input type="file" id="csvFile" style={{display: 'none'}} accept=".csv" onChange={onFileChange}/>
+                <input type="file" id="csvFile" style={{display: 'none'}} accept=".csv,.json,.yaml,.yml" onChange={onFileChange}/>
                 <div id="fileStatus" className="file-status">{fileStatus}</div>
             </div>
             <div id="errors">

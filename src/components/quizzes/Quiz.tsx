@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { validateCSVFormat } from '../../utils/csvHandler.ts';
+import { parseQuestionsAuto } from '../../utils/quizParsers.ts';
 import Step1 from "./quizSteps/Step1.tsx";
 import Step2 from "./quizSteps/Step2.tsx";
 import Step3 from "./quizSteps/Step3.tsx";
@@ -43,18 +44,24 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
     const handleFileImport = (file: File): boolean => {
         resetImportFeedback();
         if (!file) {
-            alert('Veuillez sélectionner un fichier CSV');
-            setSuccess(false);
-        }
-        if (!file.name.endsWith('.csv')) {
-            setFileStatus('✗ Extension de fichier incorrecte');
+            alert('Veuillez sélectionner un fichier');
             setSuccess(false);
         }
         const reader = new FileReader();
-        reader.onload = function (event) {
+        reader.onload = async function (event) {
             try {
-                const csvData = event.target!.result as string;
-                const questions = validateCSVFormat(csvData);
+                const text = event.target!.result as string;
+                let questions: Question[];
+                const lower = file.name.toLowerCase();
+                if (lower.endsWith('.csv')) {
+                    questions = validateCSVFormat(text);
+                } else if (lower.endsWith('.json') || lower.endsWith('.yaml') || lower.endsWith('.yml')) {
+                    questions = await parseQuestionsAuto(text, file.name);
+                } else {
+                    setFileStatus('✗ Extension de fichier incorrecte');
+                    setSuccess(false);
+                    return;
+                }
                 setQuestions(questions);
                 setSuccess(true);
                 showStep(2);

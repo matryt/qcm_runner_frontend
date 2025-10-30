@@ -1,4 +1,5 @@
 import React from 'react';
+import CodeBlock from '../../common/CodeBlock.tsx';
 import { Question } from "../../../types/Question.ts";
 
 interface Step3Props {
@@ -26,7 +27,18 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
                 <h3>{currentQuestion.question}</h3>
                 {currentQuestion.correctAnswers.length > 1 && <div>Il y a plusieurs réponses correctes.</div>}
                 <div id="imageAndAnswers">
-                    {currentQuestion.imageUrl && <img src={currentQuestion.imageUrl} alt="Question" id="imgQuestion"/>}
+                    {currentQuestion.code ? (
+                        <div style={{ maxWidth: '550px' }}>
+                            <CodeBlock code={currentQuestion.code} language={currentQuestion.codeLanguage || 'tsx'} />
+                        </div>
+                    ) : currentQuestion.imageUrl && (
+                        <img
+                            src={currentQuestion.imageUrl}
+                            alt="Question"
+                            id="imgQuestion"
+                            style={currentQuestion.imageWidth != null ? { width: `${currentQuestion.imageWidth}%` } : undefined}
+                        />
+                    )}
                     <ul>
                         {currentQuestion.options.map((option: string, index: number) => (
                             <li key={index}>
