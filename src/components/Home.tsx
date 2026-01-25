@@ -1,5 +1,4 @@
 import React from "react";
-import {Link} from "react-router";
 import Menu from "./Menu";
 
 const Home: React.FC = () => {

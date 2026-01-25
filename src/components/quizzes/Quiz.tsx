@@ -9,7 +9,6 @@ import './Quiz.css';
 import { Question } from "../../types/Question.ts";
 import { Result } from '../../types/Result.ts';
 import QuestionNavToggle from './QuestionNavToggle.tsx';
-import Menu from '../Menu.tsx';
 
 interface QuizProps {
     step: number;
