@@ -5,7 +5,6 @@
 }
 
 html, body, #root, .App {
-    height: 98%;
     box-sizing: border-box;
 }
 

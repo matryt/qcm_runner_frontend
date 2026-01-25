@@ -57,22 +57,50 @@ const Step1: React.FC<Step1Props> = ({ showStep, handleFileUpload, fileStatus, e
     }, []);
 
     return (
-        <div>
-            <h2>Étape 1: Chargez votre fichier</h2> 
-            <p>Formats supportés: CSV, JSON, YAML</p>
-            <p>JSON/YAML: vous pouvez utiliser <code>{`responses: [{ text, isCorrect }]`}</code> ou <code>options</code>/<code>correctAnswers</code>.</p>
+        <div className="step-container step1-container">
+            <div className="step-header">
+                <h2>📎 Étape 1 : Chargez votre fichier</h2>
+                <p className="step-description">Importez votre quiz au format CSV, JSON ou YAML</p>
+            </div>
+
+            <div className="info-cards">
+                <div className="info-card">
+                    <div className="info-icon">📄</div>
+                    <div className="info-title">Formats supportés</div>
+                    <div className="info-text">CSV, JSON, YAML</div>
+                </div>
+                <div className="info-card">
+                    <div className="info-icon">🔧</div>
+                    <div className="info-title">Structure JSON/YAML</div>
+                    <div className="info-text"><code>responses: [{`{ text, isCorrect }`}]</code> ou <code>options</code>/<code>correctAnswers</code></div>
+                </div>
+            </div>
 
             <div className="drop-zone" onClick={() => document.getElementById('csvFile')?.click()}>
+                <div className="drop-icon">📁</div>
                 <div className="drop-message">{dropMessage}</div>
+                {file && (
+                    <div className="file-info">
+                        <span className="file-name">📎 {file.name}</span>
+                        <span className="file-size">({(file.size / 1024).toFixed(2)} KB)</span>
+                    </div>
+                )}
                 <input type="file" id="csvFile" style={{display: 'none'}} accept=".csv,.json,.yaml,.yml" onChange={onFileChange}/>
-                <div id="fileStatus" className="file-status">{fileStatus}</div>
             </div>
-            <div id="errors">
-                    {errors.length > 0 && errors.split('\n').map((error, index) => (
-                        <div key={index}>{error}</div>
+            
+            {fileStatus && <div className="file-status success-message">{fileStatus}</div>}
+            
+            {errors.length > 0 && (
+                <div className="errors-container">
+                    {errors.split('\n').map((error, index) => (
+                        <div key={index} className="error-message">⚠️ {error}</div>
                     ))}
-            </div>
-            <button onClick={onSubmit}>Valider l'import</button>
+                </div>
+            )}
+            
+            <button className="primary-button" onClick={onSubmit} disabled={!file}>
+                🚀 Valider l'import
+            </button>
         </div>
     );
 };

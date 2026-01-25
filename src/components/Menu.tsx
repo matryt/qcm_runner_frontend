@@ -5,11 +5,14 @@ import "./Menu.css";
 const Menu: React.FC = () => {
     return (
         <nav>
+            <Link to={"/"}>
+                <button>Accueil</button>
+            </Link>
             <Link to={"/quiz"}>
                 <button>Commencer un quiz</button>
             </Link>
             <Link to={"/download"}>
-                <button>Télécharger un quiz</button>
+                <button>Récupérer un quiz</button>
             </Link>
         </nav>
     )

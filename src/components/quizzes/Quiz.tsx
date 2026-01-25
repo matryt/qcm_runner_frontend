@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { validateCSVFormat } from '../../utils/csvHandler.ts';
 import { parseQuestionsAuto } from '../../utils/quizParsers.ts';
 import Step1 from "./quizSteps/Step1.tsx";
@@ -9,14 +9,22 @@ import './Quiz.css';
 import { Question } from "../../types/Question.ts";
 import { Result } from '../../types/Result.ts';
 import QuestionNavToggle from './QuestionNavToggle.tsx';
+import Menu from '../Menu.tsx';
 
 interface QuizProps {
     step: number;
     showStep: (step: number) => void;
+    importedQuestions?: Question[] | null;
 }
 
-const Quiz: React.FC<QuizProps> = ({ step, showStep }) => {
+const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     const [questions, setQuestions] = useState<Question[]>([]);
+
+    useEffect(() => {
+        if (importedQuestions && importedQuestions.length > 0) {
+            setQuestions(importedQuestions);
+        }
+    }, [importedQuestions]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
     const [results, setResults] = useState<Result[]>([]);
     const [fileStatus, setFileStatus] = useState<string>('');
