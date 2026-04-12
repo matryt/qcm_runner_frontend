@@ -16,12 +16,28 @@ interface QuizProps {
     importedQuestions?: Question[] | null;
 }
 
+const shuffleArray = <T,>(items: T[]): T[] => {
+    const shuffled = [...items];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+};
+
+const shuffleQuestionOptions = (questions: Question[]): Question[] => {
+    return questions.map((question) => ({
+        ...question,
+        options: shuffleArray(question.options),
+    }));
+};
+
 const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     const [questions, setQuestions] = useState<Question[]>([]);
 
     useEffect(() => {
         if (importedQuestions && importedQuestions.length > 0) {
-            setQuestions(importedQuestions);
+            setQuestions(shuffleQuestionOptions(importedQuestions));
         }
     }, [importedQuestions]);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -33,7 +49,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     const [success, setSuccess] = useState<boolean>(false);
     const [submittedStates, setSubmittedStates] = useState<boolean[]>(Array(questions.length).fill(false));
     const [selectedOptions, setSelectedOptions] = useState<string[][]>(Array(questions.length).fill([]));
-    const [correctResponsesText, setCorrectResponsesText] = useState<string>("");
+    const [correctResponses, setCorrectResponses] = useState<string[]>([]);
 
     const resetState = () => {
         setQuestions([]);
@@ -45,7 +61,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
         setScore(0);
         setSubmittedStates(Array(questions.length).fill(false));
         setSelectedOptions(Array(questions.length).fill([]));
-        setCorrectResponsesText("");
+        setCorrectResponses([]);
     };
 
     const handleFileImport = (file: File): boolean => {
@@ -69,7 +85,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
                     setSuccess(false);
                     return;
                 }
-                setQuestions(questions);
+                setQuestions(shuffleQuestionOptions(questions));
                 setSuccess(true);
                 showStep(2);
             } catch (error) {
@@ -101,7 +117,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
         setCurrentQuestionIndex((prevIndex) => Math.min(prevIndex + 1, questions.length - 1));
         setFeedback('');
         resetCheckboxes();
-        setCorrectResponsesText("");
+        setCorrectResponses([]);
     };
 
     const resetCheckboxes = () => {
@@ -133,16 +149,17 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
         if (isCorrect) {
             questionScore = 1;
             setFeedback('Correct!');
+            setCorrectResponses([]);
         } else if (isPartial) {
             const correctCount = selectedOptions.filter(option => correctAnswers.includes(option)).length;
             const incorrectCount = selectedOptions.filter(option => !correctAnswers.includes(option)).length;
             questionScore = (correctCount / correctAnswers.length) - (incorrectCount * 0.25);
             setFeedback('Partiellement correct');
-            setCorrectResponsesText("Réponses correctes : " + correctAnswers.join(', '));
+            setCorrectResponses(correctAnswers);
         } else {
             questionScore = -0.5 * selectedOptions.length;
             setFeedback('Faux');
-            setCorrectResponsesText("Réponses correctes : " + correctAnswers.join(', '));
+            setCorrectResponses(correctAnswers);
         }
 
         questionScore = Math.max(questionScore, 0);
@@ -175,7 +192,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
                            submitAnswer={submitAnswer} finish={finish} questions={questions}
                            currentQuestionIndex={currentQuestionIndex} feedback={feedback}
                            submittedStates={submittedStates} selectedOptions={selectedOptions}
-                           correctResponsesText={correctResponsesText}
+                              correctResponses={correctResponses}
                     />
                     <div className="score">Score: {score}/{questions.length}</div>
                     <QuestionNavToggle

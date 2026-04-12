@@ -1,6 +1,7 @@
 import React from 'react';
 import CodeBlock from '../../common/CodeBlock.tsx';
 import { Question } from "../../../types/Question.ts";
+import MathText from '../../common/MathText.tsx';
 
 interface Step3Props {
     showPreviousQuestion: () => void;
@@ -12,11 +13,11 @@ interface Step3Props {
     feedback: string;
     submittedStates: boolean[];
     selectedOptions: string[][];
-    correctResponsesText?: string;
+    correctResponses?: string[];
 }
 
 const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, submitAnswer, finish, questions,
-                                         currentQuestionIndex, feedback, submittedStates, selectedOptions, correctResponsesText }) => {
+                                         currentQuestionIndex, feedback, submittedStates, selectedOptions, correctResponses }) => {
     const currentQuestion = questions[currentQuestionIndex];
     const isCurrentSubmitted = submittedStates[currentQuestionIndex];
     const currentSelectedOptions = selectedOptions[currentQuestionIndex] || [];
@@ -36,7 +37,7 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
             </div>
 
             <div className="question-content">
-                <h3 className="question-title">{currentQuestion.question}</h3>
+                <h3 className="question-title"><MathText text={currentQuestion.question} /></h3>
                 {currentQuestion.correctAnswers.length > 1 && (
                     <div className="info-badge">
                         <span className="info-icon">ℹ️</span>
@@ -70,7 +71,7 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
                                 />
                                 <label htmlFor={`option${index}`} className="option-label">
                                     <span className="option-checkbox"></span>
-                                    <span className="option-text">{option}</span>
+                                    <span className="option-text"><MathText text={option} /></span>
                                 </label>
                             </li>
                         ))}
@@ -114,10 +115,19 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
                 </div>
             )}
             
-            {correctResponsesText && (
+            {correctResponses && correctResponses.length > 0 && (
                 <div className="correct-responses-box">
                     <span className="correct-icon">💡</span>
-                    {correctResponsesText}
+                    <div>
+                        <div className="correct-responses-title">Réponses correctes :</div>
+                        <ul className="correct-responses-list">
+                            {correctResponses.map((answer, index) => (
+                                <li key={index}>
+                                    <MathText text={answer} />
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                 </div>
             )}
         </div>

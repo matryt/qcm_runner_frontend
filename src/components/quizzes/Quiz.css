@@ -1,7 +1,11 @@
 /* Quiz.css */
 
 h1 {
+    text-align: center;
     color: #333;
+    margin: 20px 0 30px 0;
+    font-size: 2.2em;
+    font-family: 'Arial', sans-serif;
 }
 
 h2 {
@@ -215,6 +219,16 @@ h2 {
     line-height: 1.5;
 }
 
+.math-inline {
+    display: inline;
+}
+
+.math-block {
+    display: block;
+    margin: 8px 0;
+    overflow-x: auto;
+}
+
 .navigation-buttons {
     display: flex;
     gap: 15px;
@@ -302,6 +316,16 @@ h2 {
     align-items: center;
     gap: 10px;
     border-left: 4px solid #38ef7d;
+}
+
+.correct-responses-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.correct-responses-list {
+    margin: 0;
+    padding-left: 20px;
 }
 
 .correct-icon {
@@ -526,6 +550,26 @@ h2 {
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     margin-bottom: 30px;
+}
+
+.preview-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: white;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.preview-count {
+    color: #666;
+    font-weight: 600;
+}
+
+.preview-toggle {
+    margin: 0;
+    padding: 8px 16px;
 }
 
 .preview-table {

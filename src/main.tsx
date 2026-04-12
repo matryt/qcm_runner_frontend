@@ -5,6 +5,7 @@ import {
 } from "react-router";
 import QuizPage from "./components/quizzes/QuizPage.tsx";
 import "./index.css";
+import 'katex/dist/katex.min.css';
 import Home from "./components/Home.tsx";
 import DownloadPage from "./components/downloads/DownloadPage.tsx";
 

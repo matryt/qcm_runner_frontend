@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {Question} from "../../../types/Question.ts";
+import MathText from '../../common/MathText.tsx';
 
 interface Step2Props {
     showStep: (step: number) => void;
@@ -7,9 +8,16 @@ interface Step2Props {
 }
 
 const Step2: React.FC<Step2Props> = ({ showStep, questions }) => {
+    const [showAll, setShowAll] = useState(false);
+    const previewLimit = 8;
     const totalOptions = questions.reduce((sum, q) => sum + q.options.length, 0);
-    const avgOptions = (totalOptions / questions.length).toFixed(1);
+    const avgOptions = questions.length > 0 ? (totalOptions / questions.length).toFixed(1) : '0.0';
     const multipleAnswers = questions.filter(q => q.correctAnswers.length > 1).length;
+    const displayedQuestions = useMemo(
+        () => (showAll ? questions : questions.slice(0, previewLimit)),
+        [questions, showAll]
+    );
+    const hasMoreThanPreview = questions.length > previewLimit;
     
     return (
         <div className="step-container step2-container">
@@ -38,6 +46,19 @@ const Step2: React.FC<Step2Props> = ({ showStep, questions }) => {
             </div>
 
             <div className="preview-table-wrapper">
+                <div className="preview-controls">
+                    <span className="preview-count">
+                        Aperçu: {displayedQuestions.length} / {questions.length}
+                    </span>
+                    {hasMoreThanPreview && (
+                        <button
+                            className="secondary-button preview-toggle"
+                            onClick={() => setShowAll((prev) => !prev)}
+                        >
+                            {showAll ? 'Voir moins' : 'Voir tout'}
+                        </button>
+                    )}
+                </div>
                 <table className="preview-table">
                     <thead>
                     <tr>
@@ -48,11 +69,11 @@ const Step2: React.FC<Step2Props> = ({ showStep, questions }) => {
                     </tr>
                     </thead>
                     <tbody>
-                    {questions.map((q, index) => (
+                    {displayedQuestions.map((q, index) => (
                         <tr key={index}>
                             <td className="cell-number">{index + 1}</td>
                             <td className="cell-question">
-                                <div className="question-preview">{q.question}</div>
+                                <div className="question-preview"><MathText text={q.question} /></div>
                             </td>
                             <td className="cell-center">
                                 <span className="badge badge-info">{q.options.length} options</span>

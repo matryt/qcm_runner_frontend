@@ -1,5 +1,6 @@
 import React from 'react';
 import { Result } from '../../../types/Result.ts';
+import MathText from '../../common/MathText.tsx';
 
 interface Step4Props {
     showStep: (step: number) => void;
@@ -98,7 +99,7 @@ const Step4: React.FC<Step4Props> = ({ showStep, results, nb, score }) => {
                             <tr key={index} className={result.correct ? 'row-correct' : result.partial ? 'row-partial' : 'row-incorrect'}>
                                 <td className="cell-number">{index + 1}</td>
                                 <td className="cell-question">
-                                    <div className="question-text">{result.question}</div>
+                                    <div className="question-text"><MathText text={result.question} /></div>
                                 </td>
                                 <td className="cell-status">
                                     {result.correct && <span className="status-badge status-correct"><span className="badge-icon">✓</span> Correct</span>}
@@ -113,7 +114,7 @@ const Step4: React.FC<Step4Props> = ({ showStep, results, nb, score }) => {
                                         {result.selectedOptions.map((opt, i) => (
                                             <li key={i} className={result.correctAnswers.includes(opt) ? 'answer-correct' : 'answer-incorrect'}>
                                                 <span className="answer-bullet">{result.correctAnswers.includes(opt) ? '✓' : '✗'}</span>
-                                                {opt}
+                                                <MathText text={opt} />
                                             </li>
                                         ))}
                                     </ul>
@@ -121,7 +122,7 @@ const Step4: React.FC<Step4Props> = ({ showStep, results, nb, score }) => {
                                 <td className="cell-correct-answers">
                                     <ul className="answer-list correct-list">
                                         {result.correctAnswers.map((opt, i) => (
-                                            <li key={i}><span className="answer-bullet">✓</span>{opt}</li>
+                                            <li key={i}><span className="answer-bullet">✓</span><MathText text={opt} /></li>
                                         ))}
                                     </ul>
                                 </td>
