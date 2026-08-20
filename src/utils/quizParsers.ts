@@ -23,6 +23,15 @@ type QuestionAuthoringV2 = {
 
 type AuthoringQuestion = QuestionAuthoringV1 | QuestionAuthoringV2;
 
+function shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
 function normalizeAuthoringQuestion(q: AuthoringQuestion): Question {
     if ((q as QuestionAuthoringV2).responses) {
         const v2 = q as QuestionAuthoringV2;
@@ -30,7 +39,7 @@ function normalizeAuthoringQuestion(q: AuthoringQuestion): Question {
         const correctAnswers = v2.responses.filter(r => r.isCorrect).map(r => r.text);
         return {
             question: v2.question,
-            options,
+            options: shuffleArray(options),
             correctAnswers,
             imageUrl: v2.imageUrl ?? null,
             imageWidth: v2.imageWidth ?? null,
@@ -41,7 +50,7 @@ function normalizeAuthoringQuestion(q: AuthoringQuestion): Question {
     const v1 = q as QuestionAuthoringV1;
     return {
         question: v1.question,
-        options: v1.options,
+        options: shuffleArray(v1.options),
         correctAnswers: v1.correctAnswers,
         imageUrl: v1.imageUrl ?? null,
         imageWidth: v1.imageWidth ?? null,
