@@ -1138,3 +1138,115 @@ h2 {
         font-size: 1.6em;
     }
 }
+
+.options-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.option-item {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+/* Masque complètement l'input natif (checkbox ET radio) */
+.option-item input[type="checkbox"],
+.option-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    pointer-events: none;
+}
+
+.option-label {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px 20px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.05em;
+    user-select: none;
+}
+
+.option-label:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateX(4px);
+}
+
+/* État sélectionné */
+.option-item.selected .option-label {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.option-item.disabled .option-label {
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+}
+
+/* Indicateur visuel de base (Checkbox) */
+.option-checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #667eea;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.option-item.selected .option-checkbox {
+    background: #667eea;
+}
+
+.option-item.selected .option-checkbox::after {
+    content: '✓';
+    color: white;
+    font-weight: bold;
+    font-size: 0.95em;
+}
+
+/* Indicateur visuel pour mode Radio (Question à réponse unique) */
+.option-checkbox.radio-style {
+    border-radius: 50%;
+}
+
+.option-item.selected .option-checkbox.radio-style {
+    background: white;
+    border-color: #667eea;
+}
+
+.option-item.selected .option-checkbox.radio-style::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #667eea;
+}
+
+.option-text {
+    flex: 1;
+    color: #333;
+    line-height: 1.5;
+}
+
+.drop-zone.dragging {
+    border-color: #764ba2;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    transform: scale(1.02);
+}

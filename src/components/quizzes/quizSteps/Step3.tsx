@@ -13,14 +13,27 @@ interface Step3Props {
     feedback: string;
     submittedStates: boolean[];
     selectedOptions: string[][];
+    onToggleOption: (option: string) => void;
     correctResponses?: string[];
 }
 
-const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, submitAnswer, finish, questions,
-                                         currentQuestionIndex, feedback, submittedStates, selectedOptions, correctResponses }) => {
+const Step3: React.FC<Step3Props> = ({
+    showPreviousQuestion,
+    showNextQuestion,
+    submitAnswer,
+    finish,
+    questions,
+    currentQuestionIndex,
+    feedback,
+    submittedStates,
+    selectedOptions,
+    onToggleOption,
+    correctResponses
+}) => {
     const currentQuestion = questions[currentQuestionIndex];
-    const isCurrentSubmitted = submittedStates[currentQuestionIndex];
-    const currentSelectedOptions = selectedOptions[currentQuestionIndex] || [];
+    const isCurrentSubmitted = submittedStates[currentQuestionIndex] ?? false;
+    const currentSelected = selectedOptions[currentQuestionIndex] ?? [];
+    const isMultiple = currentQuestion.correctAnswers.length > 1;
 
     return (
         <div className="step-container step3-container">
@@ -32,23 +45,29 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
                     <div 
                         className="question-progress-fill"
                         style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
-                    ></div>
+                    />
                 </div>
             </div>
 
             <div className="question-content">
-                <h3 className="question-title"><MathText text={currentQuestion.question} /></h3>
-                {currentQuestion.correctAnswers.length > 1 && (
+                <h3 className="question-title">
+                    <MathText text={currentQuestion.question} />
+                </h3>
+                
+                {isMultiple && (
                     <div className="info-badge">
                         <span className="info-icon">ℹ️</span>
-                        Il y a plusieurs réponses correctes
+                        Plusieurs réponses correctes possibles
                     </div>
                 )}
                 
                 <div id="imageAndAnswers">
                     {currentQuestion.code ? (
                         <div style={{ maxWidth: '550px' }}>
-                            <CodeBlock code={currentQuestion.code} language={currentQuestion.codeLanguage || 'tsx'} />
+                            <CodeBlock 
+                                code={currentQuestion.code} 
+                                language={currentQuestion.codeLanguage || 'tsx'} 
+                            />
                         </div>
                     ) : currentQuestion.imageUrl && (
                         <img
@@ -58,50 +77,69 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
                             style={currentQuestion.imageWidth != null ? { width: `${currentQuestion.imageWidth}%` } : undefined}
                         />
                     )}
+
                     <ul className="options-list">
-                        {currentQuestion.options.map((option: string, index: number) => (
-                            <li key={index} className={`option-item ${currentSelectedOptions.includes(option) ? 'selected' : ''} ${isCurrentSubmitted ? 'disabled' : ''}`}>
-                                <input 
-                                    type="checkbox" 
-                                    name="option" 
-                                    value={option} 
-                                    id={`option${index}`} 
-                                    disabled={isCurrentSubmitted} 
-                                    defaultChecked={currentSelectedOptions.includes(option)} 
-                                />
-                                <label htmlFor={`option${index}`} className="option-label">
-                                    <span className="option-checkbox"></span>
-                                    <span className="option-text"><MathText text={option} /></span>
-                                </label>
-                            </li>
-                        ))}
+                        {currentQuestion.options.map((option: string, index: number) => {
+                            const isChecked = currentSelected.includes(option);
+                            const optionId = `q${currentQuestionIndex}-opt-${index}`;
+
+                            return (
+                                <li 
+                                    key={option} 
+                                    className={`option-item ${isChecked ? 'selected' : ''} ${isCurrentSubmitted ? 'disabled' : ''}`}
+                                >
+                                    <input 
+                                        type={isMultiple ? 'checkbox' : 'radio'} 
+                                        name={`question-${currentQuestionIndex}`}
+                                        value={option} 
+                                        id={optionId} 
+                                        disabled={isCurrentSubmitted} 
+                                        checked={isChecked}
+                                        onChange={() => onToggleOption(option)}
+                                    />
+                                    <label htmlFor={optionId} className="option-label">
+                                        <span className={`option-checkbox ${!isMultiple ? 'radio-style' : ''}`} />
+                                        <span className="option-text">
+                                            <MathText text={option} />
+                                        </span>
+                                    </label>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </div>
             </div>
 
             <div className="navigation-buttons">
                 <button 
+                    type="button"
                     className="nav-button secondary-button" 
                     onClick={showPreviousQuestion} 
-                    disabled={currentQuestionIndex == 0}
+                    disabled={currentQuestionIndex === 0}
                 >
                     ← Précédent
                 </button>
                 <button 
+                    type="button"
                     className="nav-button primary-button" 
                     onClick={submitAnswer} 
-                    disabled={isCurrentSubmitted}
+                    disabled={isCurrentSubmitted || currentSelected.length === 0}
                 >
-                    ✓ Envoyer
+                    ✓ Valider
                 </button>
                 <button 
+                    type="button"
                     className="nav-button secondary-button" 
                     onClick={showNextQuestion} 
-                    disabled={currentQuestionIndex == questions.length - 1}
+                    disabled={currentQuestionIndex === questions.length - 1}
                 >
                     Suivant →
                 </button>
-                <button className="nav-button finish-button" onClick={finish}>
+                <button 
+                    type="button" 
+                    className="nav-button finish-button" 
+                    onClick={finish}
+                >
                     🏁 Résultats
                 </button>
             </div>
@@ -121,8 +159,8 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
                     <div>
                         <div className="correct-responses-title">Réponses correctes :</div>
                         <ul className="correct-responses-list">
-                            {correctResponses.map((answer, index) => (
-                                <li key={index}>
+                            {correctResponses.map((answer, idx) => (
+                                <li key={idx}>
                                     <MathText text={answer} />
                                 </li>
                             ))}
@@ -132,6 +170,6 @@ const Step3: React.FC<Step3Props> = ({ showPreviousQuestion, showNextQuestion, s
             )}
         </div>
     );
-}
+};
 
 export default Step3;

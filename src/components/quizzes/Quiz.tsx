@@ -16,6 +16,8 @@ interface QuizProps {
     importedQuestions?: Question[] | null;
 }
 
+
+
 const shuffleArray = <T,>(items: T[]): T[] => {
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -34,6 +36,27 @@ const shuffleQuestionOptions = (questions: Question[]): Question[] => {
 
 const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     const [questions, setQuestions] = useState<Question[]>([]);
+
+    const handleToggleOption = (option: string) => {
+        const currentQuestion = questions[currentQuestionIndex];
+        const isMultiple = currentQuestion.correctAnswers.length > 1;
+        const currentList = selectedOptions[currentQuestionIndex] || [];
+
+        let updatedList: string[];
+        if (isMultiple) {
+            updatedList = currentList.includes(option)
+                ? currentList.filter(o => o !== option)
+                : [...currentList, option];
+        } else {
+            updatedList = [option];
+        }
+
+        setSelectedOptions(prev => {
+            const next = [...prev];
+            next[currentQuestionIndex] = updatedList;
+            return next;
+        });
+    };
 
     useEffect(() => {
         if (importedQuestions && importedQuestions.length > 0) {
@@ -128,20 +151,23 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     };
 
     const submitAnswer = () => {
-        const selectedOptions = Array.from(document.querySelectorAll('input[name="option"]:checked'))
-            .map((input) => (input as HTMLInputElement).value);
-        if (selectedOptions.length === 0) {
-            alert('Please select at least one option');
-            return;
-        }
+        const currentSelected = selectedOptions[currentQuestionIndex] || [];
+        if (currentSelected.length === 0) return;
+
         const currentQuestion = questions[currentQuestionIndex];
         const correctAnswers = currentQuestion.correctAnswers;
-        const isCorrect = selectedOptions.every(option => correctAnswers.includes(option)) && selectedOptions.length === correctAnswers.length;
-        const isPartial = selectedOptions.some(option => correctAnswers.includes(option)) && !isCorrect;
+        const isCorrect = currentSelected.every(option => correctAnswers.includes(option)) && currentSelected.length === correctAnswers.length;
+        const isPartial = currentSelected.some(option => correctAnswers.includes(option)) && !isCorrect;
 
-        setResults((prevResults: Result[]) => {
+        setResults(prevResults => {
             const newResults = [...prevResults];
-            newResults[currentQuestionIndex] = { question: currentQuestion.question, correct: isCorrect, partial: isPartial, selectedOptions, correctAnswers };
+            newResults[currentQuestionIndex] = { 
+                question: currentQuestion.question, 
+                correct: isCorrect, 
+                partial: isPartial, 
+                selectedOptions: currentSelected, 
+                correctAnswers 
+            };
             return newResults;
         });
 
@@ -151,30 +177,22 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
             setFeedback('Correct!');
             setCorrectResponses([]);
         } else if (isPartial) {
-            const correctCount = selectedOptions.filter(option => correctAnswers.includes(option)).length;
-            const incorrectCount = selectedOptions.filter(option => !correctAnswers.includes(option)).length;
+            const correctCount = currentSelected.filter(o => correctAnswers.includes(o)).length;
+            const incorrectCount = currentSelected.filter(o => !correctAnswers.includes(o)).length;
             questionScore = (correctCount / correctAnswers.length) - (incorrectCount * 0.25);
             setFeedback('Partiellement correct');
             setCorrectResponses(correctAnswers);
         } else {
-            questionScore = -0.5 * selectedOptions.length;
+            questionScore = -0.5 * currentSelected.length;
             setFeedback('Faux');
             setCorrectResponses(correctAnswers);
         }
 
-        questionScore = Math.max(questionScore, 0);
-        setScore((prevScore) => prevScore + questionScore);
-
-        setSubmittedStates((prevStates) => {
-            const newStates = [...prevStates];
-            newStates[currentQuestionIndex] = true;
-            return newStates;
-        });
-
-        setSelectedOptions((prevOptions) => {
-            const newOptions = [...prevOptions];
-            newOptions[currentQuestionIndex] = selectedOptions;
-            return newOptions;
+        setScore(prev => prev + Math.max(questionScore, 0));
+        setSubmittedStates(prev => {
+            const next = [...prev];
+            next[currentQuestionIndex] = true;
+            return next;
         });
     };
 
@@ -192,7 +210,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
                            submitAnswer={submitAnswer} finish={finish} questions={questions}
                            currentQuestionIndex={currentQuestionIndex} feedback={feedback}
                            submittedStates={submittedStates} selectedOptions={selectedOptions}
-                              correctResponses={correctResponses}
+                              correctResponses={correctResponses} onToggleOption={handleToggleOption}
                     />
                     <div className="score">Score: {score}/{questions.length}</div>
                     <QuestionNavToggle
