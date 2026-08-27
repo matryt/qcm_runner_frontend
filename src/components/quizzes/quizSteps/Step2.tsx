@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import {Question} from "../../../types/Question.ts";
 import MathText from '../../common/MathText.tsx';
+import "./Step2.css";
+import KeyboardShortcutsHelp from '../../common/KeyboardShortcutsHelp.tsx';
 
 interface Step2Props {
     showStep: (step: number) => void;
@@ -86,6 +88,8 @@ const Step2: React.FC<Step2Props> = ({ showStep, questions }) => {
                     </tbody>
                 </table>
             </div>
+
+            <KeyboardShortcutsHelp />
         </div>
     );
 }

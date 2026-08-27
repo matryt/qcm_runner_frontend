@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import "./Step1.css";
 
 interface Step1Props {
     showStep: (step: number) => void;

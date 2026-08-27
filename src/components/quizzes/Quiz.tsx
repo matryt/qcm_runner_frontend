@@ -16,8 +16,6 @@ interface QuizProps {
     importedQuestions?: Question[] | null;
 }
 
-
-
 const shuffleArray = <T,>(items: T[]): T[] => {
     const shuffled = [...items];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -36,6 +34,80 @@ const shuffleQuestionOptions = (questions: Question[]): Question[] => {
 
 const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+    const [results, setResults] = useState<Result[]>([]);
+    const [fileStatus, setFileStatus] = useState<string>('');
+    const [errors, setErrors] = useState<string>('');
+    const [feedback, setFeedback] = useState<string>('');
+    const [score, setScore] = useState<number>(0);
+    const [submittedStates, setSubmittedStates] = useState<boolean[]>([]);
+    const [selectedOptions, setSelectedOptions] = useState<string[][]>([]);
+    const [correctResponses, setCorrectResponses] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (importedQuestions && importedQuestions.length > 0) {
+            const shuffled = shuffleQuestionOptions(importedQuestions);
+            setQuestions(shuffled);
+            setSubmittedStates(Array(shuffled.length).fill(false));
+            setSelectedOptions(Array(shuffled.length).fill([]));
+        }
+    }, [importedQuestions]);
+
+    const resetState = () => {
+        setQuestions([]);
+        setCurrentQuestionIndex(0);
+        setResults([]);
+        setFileStatus('');
+        setErrors('');
+        setFeedback('');
+        setScore(0);
+        setSubmittedStates([]);
+        setSelectedOptions([]);
+        setCorrectResponses([]);
+    };
+
+    const handleFileImport = (file: File): boolean => {
+        setFileStatus('');
+        setErrors('');
+        if (!file) {
+            alert('Veuillez sélectionner un fichier');
+            return false;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async function (event) {
+            try {
+                const text = event.target!.result as string;
+                let parsed: Question[];
+                const lower = file.name.toLowerCase();
+                
+                if (lower.endsWith('.csv')) {
+                    parsed = validateCSVFormat(text);
+                } else if (lower.endsWith('.json') || lower.endsWith('.yaml') || lower.endsWith('.yml')) {
+                    parsed = await parseQuestionsAuto(text, file.name);
+                } else {
+                    setFileStatus('✗ Extension de fichier incorrecte');
+                    return;
+                }
+
+                const shuffled = shuffleQuestionOptions(parsed);
+                setQuestions(shuffled);
+                setSubmittedStates(Array(shuffled.length).fill(false));
+                setSelectedOptions(Array(shuffled.length).fill([]));
+                showStep(2);
+            } catch (error) {
+                setErrors(`✗ ${(error as Error).message}`);
+            }
+        };
+
+        reader.onerror = function () {
+            setErrors('✗ Erreur lors de la lecture du fichier');
+        };
+
+        resetState();
+        reader.readAsText(file);
+        return true;
+    };
 
     const handleToggleOption = (option: string) => {
         const currentQuestion = questions[currentQuestionIndex];
@@ -58,96 +130,16 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
         });
     };
 
-    useEffect(() => {
-        if (importedQuestions && importedQuestions.length > 0) {
-            setQuestions(shuffleQuestionOptions(importedQuestions));
-        }
-    }, [importedQuestions]);
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-    const [results, setResults] = useState<Result[]>([]);
-    const [fileStatus, setFileStatus] = useState<string>('');
-    const [errors, setErrors] = useState<string>('');
-    const [feedback, setFeedback] = useState<string>('');
-    const [score, setScore] = useState<number>(0);
-    const [success, setSuccess] = useState<boolean>(false);
-    const [submittedStates, setSubmittedStates] = useState<boolean[]>(Array(questions.length).fill(false));
-    const [selectedOptions, setSelectedOptions] = useState<string[][]>(Array(questions.length).fill([]));
-    const [correctResponses, setCorrectResponses] = useState<string[]>([]);
-
-    const resetState = () => {
-        setQuestions([]);
-        setCurrentQuestionIndex(0);
-        setResults([]);
-        setFileStatus('');
-        setErrors('');
-        setFeedback('');
-        setScore(0);
-        setSubmittedStates(Array(questions.length).fill(false));
-        setSelectedOptions(Array(questions.length).fill([]));
-        setCorrectResponses([]);
-    };
-
-    const handleFileImport = (file: File): boolean => {
-        resetImportFeedback();
-        if (!file) {
-            alert('Veuillez sélectionner un fichier');
-            setSuccess(false);
-        }
-        const reader = new FileReader();
-        reader.onload = async function (event) {
-            try {
-                const text = event.target!.result as string;
-                let questions: Question[];
-                const lower = file.name.toLowerCase();
-                if (lower.endsWith('.csv')) {
-                    questions = validateCSVFormat(text);
-                } else if (lower.endsWith('.json') || lower.endsWith('.yaml') || lower.endsWith('.yml')) {
-                    questions = await parseQuestionsAuto(text, file.name);
-                } else {
-                    setFileStatus('✗ Extension de fichier incorrecte');
-                    setSuccess(false);
-                    return;
-                }
-                setQuestions(shuffleQuestionOptions(questions));
-                setSuccess(true);
-                showStep(2);
-            } catch (error) {
-                setErrors(`✗ ${(error as Error).message}`);
-                setSuccess(false);
-            }
-        };
-        reader.onerror = function () {
-            setErrors('✗ Erreur lors de la lecture du fichier');
-            setSuccess(false);
-        };
-        reader.readAsText(file);
-        resetState();
-        return success;
-    };
-
-    const resetImportFeedback = () => {
-        setFileStatus('');
-        setErrors('');
-    };
-
     const showPreviousQuestion = () => {
         setCurrentQuestionIndex((prevIndex) => Math.max(prevIndex - 1, 0));
         setFeedback('');
-        resetCheckboxes();
+        setCorrectResponses([]);
     };
 
     const showNextQuestion = () => {
         setCurrentQuestionIndex((prevIndex) => Math.min(prevIndex + 1, questions.length - 1));
         setFeedback('');
-        resetCheckboxes();
         setCorrectResponses([]);
-    };
-
-    const resetCheckboxes = () => {
-        const checkboxes = document.querySelectorAll('input[name="option"]');
-        checkboxes.forEach((checkbox) => {
-            (checkbox as HTMLInputElement).checked = false;
-        });
     };
 
     const submitAnswer = () => {
@@ -156,8 +148,8 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
 
         const currentQuestion = questions[currentQuestionIndex];
         const correctAnswers = currentQuestion.correctAnswers;
-        const isCorrect = currentSelected.every(option => correctAnswers.includes(option)) && currentSelected.length === correctAnswers.length;
-        const isPartial = currentSelected.some(option => correctAnswers.includes(option)) && !isCorrect;
+        const isCorrect = currentSelected.every(opt => correctAnswers.includes(opt)) && currentSelected.length === correctAnswers.length;
+        const isPartial = currentSelected.some(opt => correctAnswers.includes(opt)) && !isCorrect;
 
         setResults(prevResults => {
             const newResults = [...prevResults];
@@ -177,8 +169,8 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
             setFeedback('Correct!');
             setCorrectResponses([]);
         } else if (isPartial) {
-            const correctCount = currentSelected.filter(o => correctAnswers.includes(o)).length;
-            const incorrectCount = currentSelected.filter(o => !correctAnswers.includes(o)).length;
+            const correctCount = currentSelected.filter(opt => correctAnswers.includes(opt)).length;
+            const incorrectCount = currentSelected.filter(opt => !correctAnswers.includes(opt)).length;
             questionScore = (correctCount / correctAnswers.length) - (incorrectCount * 0.25);
             setFeedback('Partiellement correct');
             setCorrectResponses(correctAnswers);
@@ -201,18 +193,25 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     };
 
     return (
-        <div className={"quiz-page"}>
-            {step === 1 && <Step1 handleFileUpload={handleFileImport} fileStatus={fileStatus} showStep={showStep} errors={errors}/>}
-            {step === 2 && <Step2 showStep={showStep} questions={questions}/>}
+        <div className="quiz-page">
+            {step === 1 && <Step1 handleFileUpload={handleFileImport} fileStatus={fileStatus} showStep={showStep} errors={errors} />}
+            {step === 2 && <Step2 showStep={showStep} questions={questions} />}
             {step === 3 && (
                 <>
-                    <Step3 showPreviousQuestion={showPreviousQuestion} showNextQuestion={showNextQuestion}
-                           submitAnswer={submitAnswer} finish={finish} questions={questions}
-                           currentQuestionIndex={currentQuestionIndex} feedback={feedback}
-                           submittedStates={submittedStates} selectedOptions={selectedOptions}
-                              correctResponses={correctResponses} onToggleOption={handleToggleOption}
+                    <Step3 
+                        showPreviousQuestion={showPreviousQuestion} 
+                        showNextQuestion={showNextQuestion}
+                        submitAnswer={submitAnswer} 
+                        finish={finish} 
+                        questions={questions}
+                        currentQuestionIndex={currentQuestionIndex} 
+                        feedback={feedback}
+                        submittedStates={submittedStates} 
+                        selectedOptions={selectedOptions}
+                        correctResponses={correctResponses} 
+                        onToggleOption={handleToggleOption}
                     />
-                    <div className="score">Score: {score}/{questions.length}</div>
+                    <div className="score">Score : {score}/{questions.length}</div>
                     <QuestionNavToggle
                         questions={questions}
                         setCurrentQuestionIndex={setCurrentQuestionIndex}
@@ -221,9 +220,9 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
                     />
                 </>
             )}
-            {step === 4 && <Step4 showStep={showStep} results={results} nb={questions.length} score={score}/>}
+            {step === 4 && <Step4 showStep={showStep} results={results} nb={questions.length} score={score} />}
         </div>
     );
-}
+};
 
 export default Quiz;

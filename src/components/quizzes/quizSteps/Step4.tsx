@@ -1,6 +1,7 @@
 import React from 'react';
 import { Result } from '../../../types/Result.ts';
 import MathText from '../../common/MathText.tsx';
+import "./Step4.css";
 
 interface Step4Props {
     showStep: (step: number) => void;
