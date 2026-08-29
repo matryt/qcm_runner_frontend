@@ -1,22 +1,25 @@
 import React from 'react';
 import { Result } from '../../../types/Result.ts';
 import MathText from '../../common/MathText.tsx';
-import "./Step4.css";
+import './Step4.css';
 
 interface Step4Props {
     showStep: (step: number) => void;
     results: Result[];
     nb: number;
     score: number;
+    onRetryErrors?: () => void;
 }
 
-const Step4: React.FC<Step4Props> = ({ showStep, results, nb, score }) => {
+const Step4: React.FC<Step4Props> = ({ showStep, results, nb, score, onRetryErrors }) => {
     const correctCount = results.filter(r => r.correct).length;
     const partialCount = results.filter(r => r.partial).length;
     const incorrectCount = results.filter(r => !r.correct && !r.partial).length;
-    const percentage = Math.round((score / nb) * 100);
+    const percentage = Math.max(0, Math.round((score / nb) * 100));
     
-    // Déterminer la couleur et le message selon le score
+    // Déterminer s'il y a des questions à réviser
+    const hasErrors = results.some(r => !r.correct);
+
     let scoreClass = 'score-low';
     let scoreMessage = 'Continuez à vous entraîner !';
     
@@ -41,12 +44,11 @@ const Step4: React.FC<Step4Props> = ({ showStep, results, nb, score }) => {
                 <div className="score-percentage">{percentage}%</div>
                 <div className="score-message">{scoreMessage}</div>
                 
-                {/* Barre de progression */}
                 <div className="progress-bar">
                     <div 
-                        className={`progress-fill ${scoreClass}`}
-                        style={{ width: `${percentage}%` }}
-                    ></div>
+                        className="progress-fill"
+                        style={{ width: `${Math.min(percentage, 100)}%` }}
+                    />
                 </div>
             </div>
             
@@ -75,68 +77,81 @@ const Step4: React.FC<Step4Props> = ({ showStep, results, nb, score }) => {
                 <div className="table-wrapper">
                     <table className="results-table">
                         <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Question</th>
-                            <th>Statut</th>
-                            <th>Score</th>
-                            <th>Vos réponses</th>
-                            <th>Réponses correctes</th>
-                        </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>Question</th>
+                                <th>Statut</th>
+                                <th>Score</th>
+                                <th>Vos réponses</th>
+                                <th>Réponses correctes</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {results.map((result, index) => {
-                            // Calculer le score pour cette question
-                            let questionScore = 0;
-                            if (result.correct) {
-                                questionScore = 1;
-                            } else if (result.partial) {
-                                const correctCount = result.selectedOptions.filter(opt => result.correctAnswers.includes(opt)).length;
-                                const incorrectCount = result.selectedOptions.filter(opt => !result.correctAnswers.includes(opt)).length;
-                                questionScore = Math.max((correctCount / result.correctAnswers.length) - (incorrectCount * 0.25), 0);
-                            }
-                            
-                            return (
-                            <tr key={index} className={result.correct ? 'row-correct' : result.partial ? 'row-partial' : 'row-incorrect'}>
-                                <td className="cell-number">{index + 1}</td>
-                                <td className="cell-question">
-                                    <div className="question-text"><MathText text={result.question} /></div>
-                                </td>
-                                <td className="cell-status">
-                                    {result.correct && <span className="status-badge status-correct"><span className="badge-icon">✓</span> Correct</span>}
-                                    {result.partial && <span className="status-badge status-partial"><span className="badge-icon">~</span> Partiel</span>}
-                                    {!result.correct && !result.partial && <span className="status-badge status-incorrect"><span className="badge-icon">✗</span> Incorrect</span>}
-                                </td>
-                                <td className="cell-score">
-                                    <span className="score-display">{questionScore.toFixed(2)}</span>
-                                </td>
-                                <td className="cell-answers">
-                                    <ul className="answer-list">
-                                        {result.selectedOptions.map((opt, i) => (
-                                            <li key={i} className={result.correctAnswers.includes(opt) ? 'answer-correct' : 'answer-incorrect'}>
-                                                <span className="answer-bullet">{result.correctAnswers.includes(opt) ? '✓' : '✗'}</span>
-                                                <MathText text={opt} />
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </td>
-                                <td className="cell-correct-answers">
-                                    <ul className="answer-list correct-list">
-                                        {result.correctAnswers.map((opt, i) => (
-                                            <li key={i}><span className="answer-bullet">✓</span><MathText text={opt} /></li>
-                                        ))}
-                                    </ul>
-                                </td>
-                            </tr>
-                        )})}
+                            {results.map((result, index) => {
+                                let questionScore = 0;
+                                if (result.correct) {
+                                    questionScore = 1;
+                                } else if (result.partial) {
+                                    const cCount = result.selectedOptions.filter(opt => result.correctAnswers.includes(opt)).length;
+                                    const iCount = result.selectedOptions.filter(opt => !result.correctAnswers.includes(opt)).length;
+                                    questionScore = Math.max((cCount / result.correctAnswers.length) - (iCount * 0.25), 0);
+                                }
+                                
+                                return (
+                                    <tr key={index} className={result.correct ? 'row-correct' : result.partial ? 'row-partial' : 'row-incorrect'}>
+                                        <td className="cell-number">{index + 1}</td>
+                                        <td className="cell-question">
+                                            <div className="question-text"><MathText text={result.question} /></div>
+                                        </td>
+                                        <td className="cell-status">
+                                            {result.correct && <span className="status-badge status-correct"><span className="badge-icon">✓</span> Correct</span>}
+                                            {result.partial && <span className="status-badge status-partial"><span className="badge-icon">~</span> Partiel</span>}
+                                            {!result.correct && !result.partial && <span className="status-badge status-incorrect"><span className="badge-icon">✗</span> Incorrect</span>}
+                                        </td>
+                                        <td className="cell-score">
+                                            <span className="score-display">{questionScore.toFixed(2)}</span>
+                                        </td>
+                                        <td className="cell-answers">
+                                            <ul className="answer-list">
+                                                {result.selectedOptions.map((opt, i) => (
+                                                    <li key={i} className={result.correctAnswers.includes(opt) ? 'answer-correct' : 'answer-incorrect'}>
+                                                        <span className="answer-bullet">{result.correctAnswers.includes(opt) ? '✓' : '✗'}</span>
+                                                        <MathText text={opt} />
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </td>
+                                        <td className="cell-correct-answers">
+                                            <ul className="answer-list correct-list">
+                                                {result.correctAnswers.map((opt, i) => (
+                                                    <li key={i}>
+                                                        <span className="answer-bullet">✓</span>
+                                                        <MathText text={opt} />
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
             </div>
             
-            <button className="restart-button" onClick={() => showStep(1)}>🔄 Recommencer un quiz</button>
+            {/* Actions de fin */}
+            <div className="results-actions">
+                {hasErrors && onRetryErrors && (
+                    <button type="button" className="retry-errors-button" onClick={onRetryErrors}>
+                        🔁 Réviser uniquement les erreurs ({partialCount + incorrectCount})
+                    </button>
+                )}
+                <button type="button" className="restart-button" onClick={() => showStep(1)}>
+                    🔄 Recommencer un autre quiz
+                </button>
+            </div>
         </div>
     );
-}
+};
 
 export default Step4;

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
 import "./Menu.css";
+import ThemeToggle from "./common/ThemeToggle";
 
 const Menu: React.FC = () => {
     return (
@@ -14,6 +15,8 @@ const Menu: React.FC = () => {
             <Link to="/quiz">
                 <button type="button" className="nav-secondary-btn">⚙️ Importer un fichier</button>
             </Link>
+
+            <ThemeToggle />
         </nav>
     );
 };

@@ -20,3 +20,220 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+:root {
+    --bg-main: #f5f7fa;
+    --bg-card: #ffffff;
+    --bg-subtle: #f8f9fa;
+    --border-color: #e0e0e0;
+    --text-primary: #1a1a2e;
+    --text-secondary: #555555;
+    --text-muted: #888888;
+    --primary: #667eea;
+    --primary-hover: #764ba2;
+    --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] {
+    --bg-main: #0f111a;
+    --bg-card: #1a1d2d;
+    --bg-subtle: #24283b;
+    --border-color: #2f344d;
+    --text-primary: #f0f2f5;
+    --text-secondary: #a0a6b8;
+    --text-muted: #6b7280;
+    --primary: #7c8ff0;
+    --primary-hover: #9065c0;
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+/* Surcharges globales pour le mode sombre */
+[data-theme="dark"] .question-content,
+[data-theme="dark"] .info-card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .stat-box,
+[data-theme="dark"] .mode-card,
+[data-theme="dark"] .preview-table,
+[data-theme="dark"] .results-table,
+[data-theme="dark"] .quiz-card,
+[data-theme="dark"] .filters-bar,
+[data-theme="dark"] .feature-card, 
+[data-theme="dark"] .feature-card h3 {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .option-label {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .option-label:hover {
+    background-color: var(--bg-subtle) !important;
+    border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .option-item.selected .option-label {
+    background: linear-gradient(135deg, rgba(124, 143, 240, 0.15) 0%, rgba(144, 101, 192, 0.15) 100%) !important;
+    border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .option-text,
+[data-theme="dark"] .question-title,
+[data-theme="dark"] .hero-title,
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .quiz-card-title {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .hero-subtitle,
+[data-theme="dark"] .download-subtitle,
+[data-theme="dark"] .feature-card p,
+[data-theme="dark"] .shortcuts-desc {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .preview-controls,
+[data-theme="dark"] .code-block-header {
+    background-color: var(--bg-subtle) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .preview-table td,
+[data-theme="dark"] .results-table td {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .preview-table tbody tr:nth-child(even),
+[data-theme="dark"] .results-table tbody tr:nth-child(even) {
+    background-color: var(--bg-subtle) !important;
+}
+
+[data-theme="dark"] .search-input,
+[data-theme="dark"] .subject-dropdown {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] nav {
+    background-color: var(--bg-card) !important;
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .question-nav-container {
+    background: linear-gradient(180deg, rgba(26, 29, 45, 0.95) 0%, rgba(15, 17, 26, 0.98) 100%) !important;
+    border-top-color: var(--border-color) !important;
+}
+
+/* Titres & Sous-titres */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] .mode-title,
+[data-theme="dark"] .results-details h3,
+[data-theme="dark"] .step-header h2 {
+    color: var(--text-primary) !important;
+}
+
+/* Descriptions & Labels secondaires */
+[data-theme="dark"] .mode-desc,
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .preview-count,
+[data-theme="dark"] .step-description {
+    color: var(--text-secondary) !important;
+}
+
+/* Champ de recherche et placeholders */
+[data-theme="dark"] .search-input {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .search-input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .search-icon {
+    color: var(--text-muted) !important;
+    opacity: 0.8 !important;
+}
+
+[data-theme="dark"] .preview-table tbody tr:hover,
+[data-theme="dark"] .results-table tbody tr:hover {
+    background-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .code-language-tag {
+    color: var(--primary) !important;
+}
+
+/* Étape 1 : Cartes d'information */
+[data-theme="dark"] .info-card {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .info-title {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .info-text {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .info-text code {
+    background-color: var(--bg-subtle) !important;
+    color: var(--primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Étape 1 : Zone de glisser-déposer (Drop Zone) */
+[data-theme="dark"] .drop-zone {
+    border-color: var(--primary) !important;
+    background: linear-gradient(135deg, rgba(124, 143, 240, 0.08) 0%, rgba(144, 101, 192, 0.08) 100%) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .drop-zone:hover,
+[data-theme="dark"] .drop-zone.dragging {
+    border-color: var(--primary-hover) !important;
+    background: linear-gradient(135deg, rgba(124, 143, 240, 0.15) 0%, rgba(144, 101, 192, 0.15) 100%) !important;
+}
+
+[data-theme="dark"] .drop-message {
+    color: var(--text-primary) !important;
+}
+
+/* Étape 1 : Bloc info du fichier sélectionné */
+[data-theme="dark"] .file-info {
+    background-color: var(--bg-subtle) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .file-size {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .download-header h1, .timer-input-group {
+    color: #1a1a2e !important;
+}

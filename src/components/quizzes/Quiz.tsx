@@ -137,6 +137,36 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
         });
     };
 
+    // Fonction pour extraire et rejouer uniquement les questions ratées ou partielles
+    const handleRetryErrors = () => {
+        const errorQuestions: Question[] = [];
+
+        results.forEach((res, index) => {
+            if (!res.correct && questions[index]) {
+                errorQuestions.push(questions[index]);
+            }
+        });
+
+        if (errorQuestions.length === 0) return;
+
+        // Réinitialise avec seulement les questions échouées
+        const shuffled = shuffleQuestionOptions(errorQuestions);
+        setQuestions(shuffled);
+        setCurrentQuestionIndex(0);
+        setResults([]);
+        setFeedback('');
+        setScore(0);
+        setSubmittedStates(Array(shuffled.length).fill(false));
+        setSelectedOptions(Array(shuffled.length).fill([]));
+        setCorrectResponses([]);
+        
+        // Repasse automatiquement en mode entraînement pour la révision
+        setQuizConfig(prev => ({ ...prev, mode: 'practice', timeLimitMinutes: null }));
+        
+        // Relance directement à l'étape du quiz
+        showStep(3);
+    };
+
     const showPreviousQuestion = () => {
         if (quizConfig.mode === 'exam') return; // Bloqué en mode examen
         setCurrentQuestionIndex((prevIndex) => Math.max(prevIndex - 1, 0));
@@ -280,6 +310,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
                     results={results} 
                     nb={questions.length} 
                     score={score} 
+                    onRetryErrors={handleRetryErrors}
                 />
             )}
         </div>

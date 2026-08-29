@@ -1,0 +1,19 @@
+.theme-toggle-btn {
+    padding: 8px 12px;
+    font-size: 1.1em;
+    background: var(--bg-card, #ffffff);
+    color: var(--text-primary, #333333);
+    border: 1.5px solid var(--border-color, #e0e0e0);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.08);
+    border-color: var(--primary, #667eea);
+}
