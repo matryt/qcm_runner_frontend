@@ -8,6 +8,7 @@ import Step4 from "./quizSteps/Step4.tsx";
 import './Quiz.css';
 import { Question } from "../../types/Question.ts";
 import { Result } from '../../types/Result.ts';
+import { QuizConfig } from '../../types/QuizMode.ts';
 import QuestionNavToggle from './QuestionNavToggle.tsx';
 
 interface QuizProps {
@@ -43,6 +44,12 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     const [submittedStates, setSubmittedStates] = useState<boolean[]>([]);
     const [selectedOptions, setSelectedOptions] = useState<string[][]>([]);
     const [correctResponses, setCorrectResponses] = useState<string[]>([]);
+    
+    // Configuration du mode
+    const [quizConfig, setQuizConfig] = useState<QuizConfig>({
+        mode: 'practice',
+        timeLimitMinutes: null
+    });
 
     useEffect(() => {
         if (importedQuestions && importedQuestions.length > 0) {
@@ -115,7 +122,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
         const currentList = selectedOptions[currentQuestionIndex] || [];
 
         let updatedList: string[];
-        if (isMultiple) {
+        if (isMultiple || quizConfig.mode === 'exam') {
             updatedList = currentList.includes(option)
                 ? currentList.filter(o => o !== option)
                 : [...currentList, option];
@@ -131,6 +138,7 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
     };
 
     const showPreviousQuestion = () => {
+        if (quizConfig.mode === 'exam') return; // Bloqué en mode examen
         setCurrentQuestionIndex((prevIndex) => Math.max(prevIndex - 1, 0));
         setFeedback('');
         setCorrectResponses([]);
@@ -186,16 +194,57 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
             next[currentQuestionIndex] = true;
             return next;
         });
+
+        // En mode examen, avancer directement à la question suivante
+        if (quizConfig.mode === 'exam') {
+            if (currentQuestionIndex < questions.length - 1) {
+                setCurrentQuestionIndex(prev => prev + 1);
+            } else {
+                finish();
+            }
+        }
     };
 
     const finish = () => {
+        // En mode examen, calculer les résultats des questions non répondues si le temps a expiré
+        if (quizConfig.mode === 'exam') {
+            setResults(prevResults => {
+                const finalResults = [...prevResults];
+                questions.forEach((q, idx) => {
+                    if (!finalResults[idx]) {
+                        finalResults[idx] = {
+                            question: q.question,
+                            correct: false,
+                            partial: false,
+                            selectedOptions: selectedOptions[idx] || [],
+                            correctAnswers: q.correctAnswers
+                        };
+                    }
+                });
+                return finalResults;
+            });
+        }
         showStep(4);
     };
 
     return (
         <div className="quiz-page">
-            {step === 1 && <Step1 handleFileUpload={handleFileImport} fileStatus={fileStatus} showStep={showStep} errors={errors} />}
-            {step === 2 && <Step2 showStep={showStep} questions={questions} />}
+            {step === 1 && (
+                <Step1 
+                    handleFileUpload={handleFileImport} 
+                    fileStatus={fileStatus} 
+                    showStep={showStep} 
+                    errors={errors} 
+                />
+            )}
+            {step === 2 && (
+                <Step2 
+                    showStep={showStep} 
+                    questions={questions} 
+                    quizConfig={quizConfig} 
+                    setQuizConfig={setQuizConfig} 
+                />
+            )}
             {step === 3 && (
                 <>
                     <Step3 
@@ -210,17 +259,29 @@ const Quiz: React.FC<QuizProps> = ({ step, showStep, importedQuestions }) => {
                         selectedOptions={selectedOptions}
                         correctResponses={correctResponses} 
                         onToggleOption={handleToggleOption}
+                        quizConfig={quizConfig}
                     />
-                    <div className="score">Score : {score}/{questions.length}</div>
-                    <QuestionNavToggle
-                        questions={questions}
-                        setCurrentQuestionIndex={setCurrentQuestionIndex}
-                        results={results}
-                        currentQuestionIndex={currentQuestionIndex}
-                    />
+                    {quizConfig.mode === 'practice' && (
+                        <div className="score">Score : {score}/{questions.length}</div>
+                    )}
+                    {quizConfig.mode === 'practice' && (
+                        <QuestionNavToggle
+                            questions={questions}
+                            setCurrentQuestionIndex={setCurrentQuestionIndex}
+                            results={results}
+                            currentQuestionIndex={currentQuestionIndex}
+                        />
+                    )}
                 </>
             )}
-            {step === 4 && <Step4 showStep={showStep} results={results} nb={questions.length} score={score} />}
+            {step === 4 && (
+                <Step4 
+                    showStep={showStep} 
+                    results={results} 
+                    nb={questions.length} 
+                    score={score} 
+                />
+            )}
         </div>
     );
 };

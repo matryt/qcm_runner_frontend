@@ -277,3 +277,33 @@
     padding: 2px 6px;
     margin-left: 8px;
 }
+
+.question-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.quiz-timer {
+    font-weight: 700;
+    font-size: 1.1em;
+    background: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 2px solid #667eea;
+    color: #667eea;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.quiz-timer.timer-warning {
+    border-color: #f5576c;
+    color: #f5576c;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}

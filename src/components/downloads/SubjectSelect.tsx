@@ -19,22 +19,28 @@ const SubjectSelect: React.FC<SubjectSelectProps> = ({ onSelect, subjects, setSu
     useEffect(() => {
         const fetchSubjects = async () => {
             if (token) {
-                const subjects = await get_all_subjects(token);
-                setSubjects(subjects);
+                const fetched = await get_all_subjects(token);
+                if (fetched) setSubjects(fetched);
             }
         };
-        fetchSubjects().then();
+        fetchSubjects();
     }, [token, setSubjects]);
 
     return (
-        <select onChange={(e) => onSelect(e.target.value)}>
-            <option value="">Sélectionner une matière</option>
-            {subjects.length > 0 && subjects.map((subject) => (
-                <option key={subject.id} value={subject.id}>
-                    {subject.name}
-                </option>
-            ))}
-        </select>
+        <div className="select-wrapper">
+            <select 
+                className="subject-dropdown" 
+                onChange={(e) => onSelect(e.target.value)}
+                defaultValue=""
+            >
+                <option value="">Toutes les matières</option>
+                {subjects.map((subject) => (
+                    <option key={subject.id} value={subject.id}>
+                        {subject.name}
+                    </option>
+                ))}
+            </select>
+        </div>
     );
 };
 

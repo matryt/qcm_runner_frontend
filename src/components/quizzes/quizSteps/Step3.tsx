@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import CodeBlock from '../../common/CodeBlock.tsx';
 import { Question } from "../../../types/Question.ts";
 import MathText from '../../common/MathText.tsx';
-import './Step3.css';
 import KeyboardShortcutsHelp from '../../common/KeyboardShortcutsHelp.tsx';
+import { QuizConfig } from '../../../types/QuizMode.ts';
+import './Step3.css';
 
 interface Step3Props {
     showPreviousQuestion: () => void;
@@ -17,6 +18,7 @@ interface Step3Props {
     selectedOptions: string[][];
     onToggleOption: (option: string) => void;
     correctResponses?: string[];
+    quizConfig: QuizConfig;
 }
 
 const Step3: React.FC<Step3Props> = ({
@@ -30,22 +32,47 @@ const Step3: React.FC<Step3Props> = ({
     submittedStates,
     selectedOptions,
     onToggleOption,
-    correctResponses
+    correctResponses,
+    quizConfig
 }) => {
     const currentQuestion = questions[currentQuestionIndex];
     const isCurrentSubmitted = submittedStates[currentQuestionIndex] ?? false;
     const currentSelected = selectedOptions[currentQuestionIndex] ?? [];
     const isMultiple = currentQuestion.correctAnswers.length > 1;
+    const isExam = quizConfig.mode === 'exam';
 
-    // Gestion des raccourcis clavier
+    // Gestion du compte à rebours
+    const [timeLeft, setTimeLeft] = useState<number | null>(() => 
+        quizConfig.timeLimitMinutes ? quizConfig.timeLimitMinutes * 60 : null
+    );
+
+    useEffect(() => {
+        if (timeLeft === null) return;
+        if (timeLeft <= 0) {
+            finish();
+            return;
+        }
+
+        const timer = setInterval(() => {
+            setTimeLeft(prev => (prev !== null ? prev - 1 : null));
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [timeLeft, finish]);
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    // Raccourcis clavier
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            // Ignorer si le focus est sur un champ de texte
             const target = event.target as HTMLElement;
             if (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'text') return;
             if (target.tagName === 'TEXTAREA') return;
 
-            // Touches numériques (gère le pavé numérique, le clavier standard et les caractères AZERTY &, é, ", ', etc.)
             const keyToNumber: Record<string, number> = {
                 '1': 0, '&': 0,
                 '2': 1, 'é': 1,
@@ -67,8 +94,7 @@ const Step3: React.FC<Step3Props> = ({
                 return;
             }
 
-            // Navigation au clavier
-            if (event.key === 'ArrowLeft' && currentQuestionIndex > 0) {
+            if (!isExam && event.key === 'ArrowLeft' && currentQuestionIndex > 0) {
                 event.preventDefault();
                 showPreviousQuestion();
             } else if (event.key === 'ArrowRight' && currentQuestionIndex < questions.length - 1) {
@@ -91,14 +117,24 @@ const Step3: React.FC<Step3Props> = ({
         onToggleOption, 
         showPreviousQuestion, 
         showNextQuestion, 
-        submitAnswer
+        submitAnswer,
+        isExam
     ]);
+
+    const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
     return (
         <div className="step-container step3-container">
             <div className="question-header">
-                <div className="question-counter">
-                    Question {currentQuestionIndex + 1} / {questions.length}
+                <div className="question-header-top">
+                    <div className="question-counter">
+                        Question {currentQuestionIndex + 1} / {questions.length}
+                    </div>
+                    {timeLeft !== null && (
+                        <div className={`quiz-timer ${timeLeft < 60 ? 'timer-warning' : ''}`}>
+                            ⏱️ {formatTime(timeLeft)}
+                        </div>
+                    )}
                 </div>
                 <div className="question-progress-bar">
                     <div 
@@ -113,7 +149,7 @@ const Step3: React.FC<Step3Props> = ({
                     <MathText text={currentQuestion.question} />
                 </h3>
                 
-                {isMultiple && (
+                {!isExam && isMultiple && (
                     <div className="info-badge">
                         <span className="info-icon">ℹ️</span>
                         Plusieurs réponses correctes possibles
@@ -148,7 +184,7 @@ const Step3: React.FC<Step3Props> = ({
                                     className={`option-item ${isChecked ? 'selected' : ''} ${isCurrentSubmitted ? 'disabled' : ''}`}
                                 >
                                     <input 
-                                        type={isMultiple ? 'checkbox' : 'radio'} 
+                                        type={isExam || isMultiple ? 'checkbox' : 'radio'} 
                                         name={`question-${currentQuestionIndex}`}
                                         value={option} 
                                         id={optionId} 
@@ -157,7 +193,7 @@ const Step3: React.FC<Step3Props> = ({
                                         onChange={() => onToggleOption(option)}
                                     />
                                     <label htmlFor={optionId} className="option-label">
-                                        <span className={`option-checkbox ${!isMultiple ? 'radio-style' : ''}`} />
+                                        <span className={`option-checkbox ${!isMultiple && !isExam ? 'radio-style' : ''}`} />
                                         <span className="option-text">
                                             <MathText text={option} />
                                         </span>
@@ -171,40 +207,54 @@ const Step3: React.FC<Step3Props> = ({
             </div>
 
             <div className="navigation-buttons">
-                <button 
-                    type="button"
-                    className="nav-button secondary-button" 
-                    onClick={showPreviousQuestion} 
-                    disabled={currentQuestionIndex === 0}
-                >
-                    ← Précédent
-                </button>
+                {!isExam && (
+                    <button 
+                        type="button"
+                        className="nav-button secondary-button" 
+                        onClick={showPreviousQuestion} 
+                        disabled={currentQuestionIndex === 0}
+                    >
+                        ← Précédent
+                    </button>
+                )}
+
+                {/* En mode Examen, valider passe automatiquement à la question suivante */}
                 <button 
                     type="button"
                     className="nav-button primary-button" 
                     onClick={submitAnswer} 
                     disabled={isCurrentSubmitted || currentSelected.length === 0}
                 >
-                    ✓ Valider (Entrée)
+                    {isExam 
+                        ? (isLastQuestion ? '✓ Terminer l\'examen' : '✓ Valider et Suivant →')
+                        : '✓ Valider (Entrée)'
+                    }
                 </button>
-                <button 
-                    type="button"
-                    className="nav-button secondary-button" 
-                    onClick={showNextQuestion} 
-                    disabled={currentQuestionIndex === questions.length - 1}
-                >
-                    Suivant →
-                </button>
-                <button 
-                    type="button" 
-                    className="nav-button finish-button" 
-                    onClick={finish}
-                >
-                    🏁 Résultats
-                </button>
+
+                {!isExam && (
+                    <button 
+                        type="button"
+                        className="nav-button secondary-button" 
+                        onClick={showNextQuestion} 
+                        disabled={currentQuestionIndex === questions.length - 1}
+                    >
+                        Suivant →
+                    </button>
+                )}
+
+                {!isExam && (
+                    <button 
+                        type="button" 
+                        className="nav-button finish-button" 
+                        onClick={finish}
+                    >
+                        🏁 Résultats
+                    </button>
+                )}
             </div>
 
-            {feedback && (
+            {/* Feedbacks affichés UNIQUEMENT en mode Entraînement */}
+            {!isExam && feedback && (
                 <div className={`feedback-box ${feedback === 'Correct!' ? 'feedback-correct' : feedback.includes('Partiel') ? 'feedback-partial' : 'feedback-incorrect'}`}>
                     <span className="feedback-icon">
                         {feedback === 'Correct!' ? '✓' : feedback.includes('Partiel') ? '~' : '✗'}
@@ -213,7 +263,7 @@ const Step3: React.FC<Step3Props> = ({
                 </div>
             )}
             
-            {correctResponses && correctResponses.length > 0 && (
+            {!isExam && correctResponses && correctResponses.length > 0 && (
                 <div className="correct-responses-box">
                     <span className="correct-icon">💡</span>
                     <div>

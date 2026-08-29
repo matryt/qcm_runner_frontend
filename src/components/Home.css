@@ -1,0 +1,222 @@
+.home-wrapper {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    padding-top: 80px;
+    box-sizing: border-box;
+}
+
+/* Cercles lumineux en arrière-plan */
+.bg-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+    z-index: 0;
+    pointer-events: none;
+    animation: floatGlow 10s ease-in-out infinite alternate;
+}
+
+.glow-1 {
+    width: 380px;
+    height: 380px;
+    background: #667eea;
+    top: 10%;
+    left: 15%;
+}
+
+.glow-2 {
+    width: 420px;
+    height: 420px;
+    background: #764ba2;
+    top: 40%;
+    right: 15%;
+    animation-delay: -5s;
+}
+
+@keyframes floatGlow {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(30px, 40px) scale(1.1); }
+}
+
+.home-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    width: 100%;
+    padding: 40px 20px 80px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes heroFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.25);
+    border-radius: 30px;
+}
+
+.hero-title {
+    font-size: 2.8em;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 1.15em;
+    color: #555;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 680px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.cta-button {
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.05em;
+    padding: 14px 32px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-cta {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.primary-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.55);
+}
+
+.secondary-cta {
+    background: white;
+    color: #444;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.secondary-cta:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Grille des fonctionnalités */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    width: 100%;
+}
+
+.feature-card {
+    background: white;
+    padding: 30px 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.18);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.feature-icon {
+    font-size: 2.4em;
+    margin-bottom: 15px;
+}
+
+.feature-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.25em;
+    color: #222;
+}
+
+.feature-card p {
+    margin: 0;
+    font-size: 0.95em;
+    color: #666;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2em;
+    }
+    .hero-subtitle {
+        font-size: 1em;
+    }
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    .cta-button {
+        width: 100%;
+    }
+}
+
+nav button.nav-secondary-btn {
+    background: #f1f3f5;
+    color: #495057;
+    border: 1px solid #ced4da;
+    box-shadow: none;
+}
+
+nav button.nav-secondary-btn:hover {
+    background: #e9ecef;
+    color: #212529;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
