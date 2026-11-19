@@ -3,6 +3,7 @@ name: Dockerise React App
 on:
   push:
     branches: [ master ]
+  workflow_dispatch: # Déclenchement manuel depuis GitHub Actions
 
 env:
   REGISTRY: ghcr.io
@@ -33,6 +34,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          pull: true # Récupère la dernière révision de node:22-alpine et nginx-unprivileged
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           build-args: |
